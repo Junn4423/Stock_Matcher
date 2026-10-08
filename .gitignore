@@ -1,0 +1,65 @@
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Databases & Logs
+*.sqlite
+*.sqlite3
+*.db
+*.log
+logs/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# App Runtime files (completely ignore runtime jobs, cache and models)
+runtime/jobs/
+runtime/cache/
+runtime/models/
+runtime/
+
+# AI Model weights & binaries (offline TTS models ~370MB, do not commit)
+weight/
+weight/**
+
+# Test outputs & media results
+caseTest*/
+caseTest*/**
+*.mp4
+*.zip
+

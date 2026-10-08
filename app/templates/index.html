@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stock Script Matcher</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <span class="eyebrow">LOCAL PRODUCTION TOOL</span>
+        <h1>Stock Script Matcher</h1>
+        <p>Biến transcript thành shot list Pexels, DOCX, timeline, video tải về và rough-cut tự động.</p>
+      </div>
+      <div class="hero-right">
+        <div id="quota-badge" class="quota-badge">Quota: Đang kiểm tra…</div>
+        <a class="pexels-credit" href="https://www.pexels.com" target="_blank" rel="noreferrer">Videos provided by Pexels ↗</a>
+      </div>
+    </header>
+
+
+    <section class="panel">
+      <form id="job-form">
+        <div class="field full">
+          <label for="file">Transcript</label>
+          <div class="dropzone" id="dropzone">
+            <input id="file" name="file" type="file" accept=".docx,.txt,.md,.markdown,.pdf,.srt,.vtt" required>
+            <strong>Chọn hoặc kéo file vào đây</strong>
+            <span>DOCX, TXT, Markdown, PDF, SRT, VTT • tối đa 20 MB</span>
+            <em id="file-name">Chưa chọn file</em>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label for="api_key">Pexels API key</label>
+          <input id="api_key" name="api_key" type="password" autocomplete="off" placeholder="Nhập key; không ghi vào report hay log">
+          <small>Có thể để trống khi PEXELS_API_KEY đã nằm trong file .env.</small>
+        </div>
+
+        <div class="grid">
+          <div class="field">
+            <label for="segment_mode">Cách phân đoạn</label>
+            <select id="segment_mode" name="segment_mode">
+              <option value="smart" selected>Smart — cân bằng ý và độ dài</option>
+              <option value="sentence">Theo từng câu</option>
+              <option value="paragraph">Theo đoạn văn</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="orientation">Tỷ lệ video</label>
+            <select id="orientation" name="orientation">
+              <option value="landscape" selected>Landscape 16:9 — YouTube</option>
+              <option value="portrait">Portrait 9:16 — Shorts/TikTok</option>
+              <option value="square">Square 1:1</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="min_segment_words">Từ tối thiểu/đoạn</label>
+            <input id="min_segment_words" name="min_segment_words" type="number" min="3" max="30" value="7">
+          </div>
+          <div class="field">
+            <label for="max_segment_words">Từ tối đa/đoạn</label>
+            <input id="max_segment_words" name="max_segment_words" type="number" min="7" max="100" value="34">
+          </div>
+          <div class="field">
+            <label for="words_per_minute">Tốc độ đọc (từ/phút)</label>
+            <input id="words_per_minute" name="words_per_minute" type="number" min="60" max="260" value="150">
+          </div>
+          <div class="field">
+            <label for="max_queries_per_segment">Truy vấn tối đa/đoạn</label>
+            <input id="max_queries_per_segment" name="max_queries_per_segment" type="number" min="1" max="4" value="2">
+          </div>
+          <div class="field">
+            <label for="results_per_query">Candidate/truy vấn</label>
+            <input id="results_per_query" name="results_per_query" type="number" min="5" max="40" value="18">
+          </div>
+          <div class="field full">
+            <label for="tts_voice">Giọng đọc (TTS)</label>
+            <select id="tts_voice" name="tts_voice">
+              <option value="auto" selected>Tự động (Việt: Hoài Mỹ / Anh: Ava)</option>
+              <option value="vi-VN-HoaiMyNeural">Edge-TTS Neural • Tiếng Việt — Nữ (Hoài Mỹ)</option>
+              <option value="vi-VN-NamMinhNeural">Edge-TTS Neural • Tiếng Việt — Nam (Nam Minh)</option>
+              <option value="en-US-AvaNeural">Edge-TTS Neural • English — Female (Ava)</option>
+              <option value="en-US-AndrewNeural">Edge-TTS Neural • English — Male (Andrew)</option>
+              <option value="kokoro-82m">Kokoro TTS 82M (Local AI) • (Kokoro-Vietnamese)</option>
+            </select>
+            <small id="voice-desc">Tự động chọn giọng nữ Hoài Mỹ (Tiếng Việt) hoặc Ava (Tiếng Anh) tùy theo văn bản.</small>
+          </div>
+          <div class="field">
+            <label for="transition_duration">Chuyển cảnh (giây)</label>
+            <input id="transition_duration" name="transition_duration" type="number" step="0.1" min="0" max="2" value="0.4">
+          </div>
+        </div>
+
+        <div class="checks">
+          <label><input type="checkbox" name="download_videos" value="true"> Tải toàn bộ video được chọn</label>
+          <label><input type="checkbox" name="build_rough_cut" value="true"> Ghép rough-cut MP4 tự động</label>
+          <label><input type="checkbox" name="enable_tts" value="true" checked> Tạo giọng đọc voiceover tự nhiên (TTS)</label>
+        </div>
+
+        <div class="actions">
+          <button id="submit-button" type="submit">Phân tích và tìm stock video</button>
+          <span class="hint">Rough-cut sẽ tự bật tải video và ghép giọng đọc.</span>
+        </div>
+
+      </form>
+    </section>
+
+    <section class="panel status-panel hidden" id="status-panel" aria-live="polite">
+      <div class="status-heading">
+        <div>
+          <span class="eyebrow">PROCESSING JOB</span>
+          <h2 id="status-title">Đang khởi tạo…</h2>
+        </div>
+        <span class="badge" id="status-badge">QUEUED</span>
+      </div>
+      <div class="progress"><div id="progress-bar"></div></div>
+      <div class="status-meta">
+        <span id="progress-text">0%</span>
+        <span id="rate-limit"></span>
+      </div>
+      <div id="log-console" class="log-console hidden"></div>
+      <div id="warnings" class="warnings hidden"></div>
+      <a id="download-link" class="download hidden" href="#">Tải gói kết quả ZIP</a>
+    </section>
+
+
+    <section class="features">
+      <article><strong>Semantic query</strong><span>Chuyển ý trừu tượng thành cảnh quay cụ thể, hỗ trợ transcript Việt/Anh.</span></article>
+      <article><strong>Smart ranking</strong><span>Chấm theo query, tỷ lệ, độ phân giải, thời lượng và mức độ trùng lặp.</span></article>
+      <article><strong>Ready-to-use package</strong><span>DOCX, CSV, JSON, SRT, video MP4 và rough-cut khi được bật.</span></article>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>
